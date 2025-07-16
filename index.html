@@ -191,6 +191,18 @@
             color: #ffcc00;
             margin: 15px 0;
         }
+        
+        #invincible-timer {
+            position: absolute;
+            top: 60px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #ffcc00;
+        }
     </style>
 </head>
 <body>
@@ -200,6 +212,7 @@
         <div id="ui-container">
             <div id="timer">时间: 0s</div>
             <div id="speed-display">速度: 100%</div>
+            <div id="invincible-timer" class="hidden">无敌: 0s</div>
             
             <div id="controls">
                 <div class="control-btn" id="left-btn">←</div>
@@ -211,6 +224,7 @@
         <div id="start-screen" class="screen">
             <h1>沙漠飞车</h1>
             <p>控制迈巴赫躲避沙漠中的障碍物，生存越久速度越快！</p>
+            <p style="color: #ffcc00; font-weight: bold;">30秒后障碍物数量增加！收集星星获得7秒无敌时间！</p>
             
             <div class="character">
                 <div class="character-icon">👩‍🦳</div>
@@ -251,7 +265,10 @@
             baseSpeed: 3,
             speedIncreaseInterval: 5000, // 每5秒增加一次速度
             speedIncreaseFactor: 0.1,
-            maxSpeed: 10
+            maxSpeed: 10,
+            invincibleDuration: 7000, // 7秒无敌时间
+            multipleObstacleTime: 30000, // 30秒后出现多个障碍物
+            starSpawnChance: 0.1 // 星星生成概率
         };
         
         // 游戏状态
@@ -262,7 +279,10 @@
             time: 0,
             speed: config.baseSpeed,
             lastObstacleTime: 0,
-            lastSpeedIncrease: 0
+            lastSpeedIncrease: 0,
+            invincible: false,
+            invincibleEndTime: 0,
+            starSpawned: 0
         };
         
         // DOM元素
@@ -270,6 +290,7 @@
         const ctx = canvas.getContext('2d');
         const timerElement = document.getElementById('timer');
         const speedElement = document.getElementById('speed-display');
+        const invincibleTimerElement = document.getElementById('invincible-timer');
         const startScreen = document.getElementById('start-screen');
         const gameOverScreen = document.getElementById('game-over-screen');
         const finalTimeElement = document.getElementById('final-time');
@@ -294,6 +315,11 @@
             gameState.speed = config.baseSpeed;
             gameState.lastObstacleTime = 0;
             gameState.lastSpeedIncrease = 0;
+            gameState.invincible = false;
+            gameState.invincibleEndTime = 0;
+            gameState.starSpawned = 0;
+            
+            invincibleTimerElement.classList.add('hidden');
             
             startScreen.classList.add('hidden');
             gameOverScreen.classList.add('hidden');
@@ -328,12 +354,33 @@
             };
         }
         
+        // 生成星星道具
+        function createStar() {
+            const minX = (canvas.width - config.roadWidth) / 2 + 30;
+            const maxX = minX + config.roadWidth - 30;
+            const x = minX + Math.random() * (maxX - minX);
+            
+            return {
+                x: x,
+                y: -30,
+                width: 30,
+                height: 30,
+                type: 'star'
+            };
+        }
+        
         // 绘制车辆
         function drawCar() {
             const carY = canvas.height - 120;
             
+            // 如果是无敌状态，添加闪烁效果
+            if (gameState.invincible) {
+                const blink = Math.sin(Date.now() / 100) > 0;
+                if (!blink) return; // 快速闪烁效果
+            }
+            
             // 绘制车身（迈巴赫）
-            ctx.fillStyle = '#000000'; // 黑色车身
+            ctx.fillStyle = gameState.invincible ? '#ffcc00' : '#000000'; // 无敌时车身变为金色
             ctx.fillRect(gameState.carX - config.carWidth/2, carY, config.carWidth, config.carHeight);
             
             // 绘制车窗
@@ -371,6 +418,19 @@
             // 白色头发
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(gameState.carX + 5, carY + 15, 10, 5);
+            
+            // 无敌状态下添加金色光环
+            if (gameState.invincible) {
+                ctx.strokeStyle = '#ffcc00';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(gameState.carX, carY + config.carHeight/2, config.carWidth + 10, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.arc(gameState.carX, carY + config.carHeight/2, config.carWidth + 15, 0, Math.PI * 2);
+                ctx.stroke();
+            }
         }
         
         // 绘制障碍物
@@ -388,26 +448,57 @@
                 case 'rail':
                     ctx.fillStyle = '#A0522D';
                     break;
+                case 'star':
+                    // 星星绘制为闪烁效果
+                    const blink = Math.sin(Date.now() / 200) > 0;
+                    ctx.fillStyle = blink ? '#FFFF00' : '#FFD700';
+                    break;
             }
             
-            ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-            
-            // 为仙人掌添加刺
-            if (obstacle.type === 'cactus') {
-                ctx.strokeStyle = '#006400';
-                ctx.lineWidth = 2;
+            if (obstacle.type === 'star') {
+                // 绘制五角星
+                ctx.beginPath();
+                const centerX = obstacle.x + obstacle.width/2;
+                const centerY = obstacle.y + obstacle.height/2;
+                const spikes = 5;
+                const outerRadius = obstacle.width/2;
+                const innerRadius = outerRadius/2;
                 
-                for (let i = 0; i < 5; i++) {
-                    const offset = i * 8;
-                    ctx.beginPath();
-                    ctx.moveTo(obstacle.x + obstacle.width/2, obstacle.y + offset + 5);
-                    ctx.lineTo(obstacle.x + obstacle.width/2 + 10, obstacle.y + offset);
-                    ctx.stroke();
+                for (let i = 0; i < spikes * 2; i++) {
+                    const radius = i % 2 === 0 ? outerRadius : innerRadius;
+                    const angle = (i * Math.PI / spikes) - Math.PI/2;
+                    const x = centerX + Math.cos(angle) * radius;
+                    const y = centerY + Math.sin(angle) * radius;
                     
-                    ctx.beginPath();
-                    ctx.moveTo(obstacle.x + obstacle.width/2, obstacle.y + offset + 5);
-                    ctx.lineTo(obstacle.x + obstacle.width/2 - 10, obstacle.y + offset);
-                    ctx.stroke();
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                
+                ctx.closePath();
+                ctx.fill();
+            } else {
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                
+                // 为仙人掌添加刺
+                if (obstacle.type === 'cactus') {
+                    ctx.strokeStyle = '#006400';
+                    ctx.lineWidth = 2;
+                    
+                    for (let i = 0; i < 5; i++) {
+                        const offset = i * 8;
+                        ctx.beginPath();
+                        ctx.moveTo(obstacle.x + obstacle.width/2, obstacle.y + offset + 5);
+                        ctx.lineTo(obstacle.x + obstacle.width/2 + 10, obstacle.y + offset);
+                        ctx.stroke();
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(obstacle.x + obstacle.width/2, obstacle.y + offset + 5);
+                        ctx.lineTo(obstacle.x + obstacle.width/2 - 10, obstacle.y + offset);
+                        ctx.stroke();
+                    }
                 }
             }
         }
@@ -471,6 +562,13 @@
                    carTop < obstacleBottom;
         }
         
+        // 激活无敌状态
+        function activateInvincibility() {
+            gameState.invincible = true;
+            gameState.invincibleEndTime = Date.now() + config.invincibleDuration;
+            invincibleTimerElement.classList.remove('hidden');
+        }
+        
         // 游戏主循环
         function gameLoop(timestamp) {
             if (!gameState.running) return;
@@ -499,10 +597,34 @@
                 }
             }
             
+            // 处理无敌状态
+            if (gameState.invincible) {
+                const remaining = Math.max(0, gameState.invincibleEndTime - Date.now());
+                invincibleTimerElement.textContent = `无敌: ${(remaining / 1000).toFixed(1)}s`;
+                
+                if (remaining <= 0) {
+                    gameState.invincible = false;
+                    invincibleTimerElement.classList.add('hidden');
+                }
+            }
+            
             // 生成新障碍物
             if (timestamp - gameState.lastObstacleTime > 1500 - (gameState.speed * 100)) {
                 gameState.lastObstacleTime = timestamp;
-                gameState.obstacles.push(createObstacle());
+                
+                // 30秒后开始出现多个障碍物
+                const obstacleCount = gameState.time > config.multipleObstacleTime/1000 ? 
+                    Math.floor(1 + Math.random() * 2) : 1;
+                
+                for (let i = 0; i < obstacleCount; i++) {
+                    gameState.obstacles.push(createObstacle());
+                }
+                
+                // 随机生成星星（概率较低）
+                if (Math.random() < config.starSpawnChance) {
+                    gameState.obstacles.push(createStar());
+                    gameState.starSpawned++;
+                }
             }
             
             // 绘制道路
@@ -520,8 +642,15 @@
                 
                 // 检测碰撞
                 if (checkCollision(obstacle)) {
-                    gameOver();
-                    return;
+                    if (obstacle.type === 'star') {
+                        // 收集星星，激活无敌状态
+                        gameState.obstacles.splice(i, 1);
+                        activateInvincibility();
+                    } else if (!gameState.invincible) {
+                        // 撞上障碍物且不在无敌状态
+                        gameOver();
+                        return;
+                    }
                 }
                 
                 // 移除屏幕外的障碍物
