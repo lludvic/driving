@@ -6,7 +6,13 @@
     <title>沙漠飞车：迈巴赫冒险</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: none;
+        }
+        
         body {
             font-family: 'Orbitron', sans-serif;
             background: linear-gradient(to bottom, #ffd89b, #19547b);
@@ -18,6 +24,7 @@
             color: #fff;
             text-shadow: 0 0 5px rgba(0,0,0,0.7);
         }
+        
         #game-container {
             position: relative;
             width: 100%;
@@ -28,6 +35,7 @@
             border-radius: 10px;
             background: #e9b96e;
         }
+        
         #game-canvas {
             position: absolute;
             top: 0;
@@ -36,79 +44,188 @@
             height: 100%;
             background: linear-gradient(to bottom, #e9b96e, #d2a460);
         }
+        
         #ui-container {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 10;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
         }
+        
         #timer {
-            position: absolute; top: 15px; right: 15px;
+            position: absolute;
+            top: 15px;
+            right: 15px;
             background: rgba(0, 0, 0, 0.6);
-            padding: 8px 15px; border-radius: 20px;
-            font-size: 1.1rem; font-weight: 700;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: 700;
         }
+        
         #speed-display {
-            position: absolute; top: 15px; left: 15px;
+            position: absolute;
+            top: 15px;
+            left: 15px;
             background: rgba(0, 0, 0, 0.6);
-            padding: 8px 15px; border-radius: 20px;
-            font-size: 1.1rem; font-weight: 700;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: 700;
         }
+        
         .screen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             background: rgba(0, 0, 0, 0.7);
-            text-align: center; padding: 20px; z-index: 20;
+            text-align: center;
+            padding: 20px;
+            z-index: 20;
             transition: opacity 0.5s;
         }
-        .screen.hidden { display: none; }
+        
+        .screen.hidden {
+            display: none;
+        }
+        
         h1 {
-            font-size: 2.5rem; margin-bottom: 20px; color: #ffcc00;
-            text-transform: uppercase; letter-spacing: 2px;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #ffcc00;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
+        
         p {
-            font-size: 1.2rem; margin-bottom: 25px; max-width: 90%; line-height: 1.6;
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            max-width: 90%;
+            line-height: 1.6;
         }
+        
         .character {
-            display: flex; align-items: center; margin: 15px 0;
-            padding: 10px 20px; background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px; width: 90%; max-width: 300px;
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            width: 90%;
+            max-width: 300px;
         }
-        .character-info { margin-left: 15px; text-align: left; }
-        .character-name { font-weight: bold; color: #ffcc00; }
+        
+        .character-info {
+            margin-left: 15px;
+            text-align: left;
+        }
+        
+        .character-name {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
         button {
             background: linear-gradient(to bottom, #ffcc00, #ff9900);
-            color: #000; border: none; padding: 15px 30px;
-            font-size: 1.2rem; font-family: 'Orbitron', sans-serif;
-            border-radius: 30px; margin-top: 20px; cursor: pointer;
-            pointer-events: auto; font-weight: bold; text-transform: uppercase;
-            letter-spacing: 1px; box-shadow: 0 4px 0 #cc7a00;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-family: 'Orbitron', sans-serif;
+            border-radius: 30px;
+            margin-top: 20px;
+            cursor: pointer;
+            pointer-events: auto;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 0 #cc7a00;
             transition: all 0.1s;
         }
-        button:active { transform: translateY(4px); box-shadow: 0 0 0 #cc7a00; }
-        #game-over-screen h1 { color: #ff3333; }
-        #final-time { font-size: 1.8rem; color: #ffcc00; margin: 15px 0; }
+        
+        button:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #cc7a00;
+        }
+        
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            pointer-events: auto;
+        }
+        
+        .control-btn {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            margin: 0 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        
+        #game-over-screen h1 {
+            color: #ff3333;
+        }
+        
+        #final-time {
+            font-size: 1.8rem;
+            color: #ffcc00;
+            margin: 15px 0;
+        }
+        
         #invincible-timer {
-            position: absolute; top: 60px; left: 15px;
+            position: absolute;
+            top: 60px;
+            left: 15px;
             background: rgba(0, 0, 0, 0.6);
-            padding: 8px 15px; border-radius: 20px;
-            font-size: 1.1rem; font-weight: 700; color: #ffcc00;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #ffcc00;
         }
     </style>
 </head>
 <body>
     <div id="game-container">
         <canvas id="game-canvas"></canvas>
+        
         <div id="ui-container">
             <div id="timer">时间: 0s</div>
             <div id="speed-display">速度: 100%</div>
             <div id="invincible-timer" class="hidden">无敌: 0s</div>
-            <!-- 已去除按钮区 -->
+            
+            <div id="controls">
+                <div class="control-btn" id="left-btn">←</div>
+                <div class="control-btn" id="right-btn">→</div>
+            </div>
         </div>
+        
         <!-- 开始界面 -->
         <div id="start-screen" class="screen">
             <h1>沙漠飞车</h1>
             <p>控制迈巴赫躲避沙漠中的障碍物，生存越久速度越快！</p>
             <p style="color: #ffcc00; font-weight: bold;">30秒后障碍物数量增加！收集星星获得7秒无敌时间！</p>
+            
             <div class="character">
                 <div class="character-icon">👩‍🦳</div>
                 <div class="character-info">
@@ -116,6 +233,7 @@
                     <div>穿着白色连衣裙，带着眼罩</div>
                 </div>
             </div>
+            
             <div class="character">
                 <div class="character-icon">👨🏼‍🦳</div>
                 <div class="character-info">
@@ -123,16 +241,19 @@
                     <div>赤裸上身，小麦色皮肤，白色头发</div>
                 </div>
             </div>
+            
             <button id="start-btn">开始冒险</button>
         </div>
+        
         <!-- 结束界面 -->
         <div id="game-over-screen" class="screen hidden">
             <h1>游戏结束</h1>
-            <p>奔驰时，一切稍纵即逝，而你，经久如斯。</p>
+            <p>您的迈巴赫撞上了障碍物</p>
             <div id="final-time">生存时间: 0秒</div>
             <button id="restart-btn">重新开始</button>
         </div>
     </div>
+
     <script>
         // 游戏配置
         const config = {
@@ -147,9 +268,9 @@
             maxSpeed: 10,
             invincibleDuration: 7000, // 7秒无敌时间
             multipleObstacleTime: 30000, // 30秒后出现多个障碍物
-            starSpawnChance: 0.01 // 星星生成概率极低
+            starSpawnChance: 0.1 // 星星生成概率
         };
-
+        
         // 游戏状态
         const gameState = {
             running: false,
@@ -163,7 +284,7 @@
             invincibleEndTime: 0,
             starSpawned: 0
         };
-
+        
         // DOM元素
         const canvas = document.getElementById('game-canvas');
         const ctx = canvas.getContext('2d');
@@ -175,14 +296,15 @@
         const finalTimeElement = document.getElementById('final-time');
         const startBtn = document.getElementById('start-btn');
         const restartBtn = document.getElementById('restart-btn');
-        // 按钮元素已移除
-
+        const leftBtn = document.getElementById('left-btn');
+        const rightBtn = document.getElementById('right-btn');
+        
         // 设置Canvas尺寸
         function resizeCanvas() {
             canvas.width = canvas.clientWidth;
             canvas.height = canvas.clientHeight;
         }
-
+        
         // 初始化游戏
         function initGame() {
             resizeCanvas();
@@ -196,27 +318,33 @@
             gameState.invincible = false;
             gameState.invincibleEndTime = 0;
             gameState.starSpawned = 0;
+            
             invincibleTimerElement.classList.add('hidden');
+            
             startScreen.classList.add('hidden');
             gameOverScreen.classList.add('hidden');
+            
             // 开始游戏循环
             requestAnimationFrame(gameLoop);
         }
-
+        
         // 游戏结束
         function gameOver() {
             gameState.running = false;
             finalTimeElement.textContent = `生存时间: ${Math.floor(gameState.time)}秒`;
             gameOverScreen.classList.remove('hidden');
         }
-
+        
         // 生成随机障碍物
         function createObstacle() {
             const obstacleTypes = ['rock', 'cactus', 'quicksand', 'rail'];
             const type = obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
+            
+            // 确保障碍物不会出现在道路外
             const minX = (canvas.width - config.roadWidth) / 2 + 30;
             const maxX = minX + config.roadWidth - 60;
             const x = minX + Math.random() * (maxX - minX);
+            
             return {
                 x: x,
                 y: -60,
@@ -225,12 +353,13 @@
                 type: type
             };
         }
-
+        
         // 生成星星道具
         function createStar() {
             const minX = (canvas.width - config.roadWidth) / 2 + 30;
             const maxX = minX + config.roadWidth - 30;
             const x = minX + Math.random() * (maxX - minX);
+            
             return {
                 x: x,
                 y: -30,
@@ -239,97 +368,132 @@
                 type: 'star'
             };
         }
-
+        
         // 绘制车辆
         function drawCar() {
             const carY = canvas.height - 120;
+            
+            // 如果是无敌状态，添加闪烁效果
             if (gameState.invincible) {
                 const blink = Math.sin(Date.now() / 100) > 0;
                 if (!blink) return; // 快速闪烁效果
             }
-            // 车身
-            ctx.fillStyle = gameState.invincible ? '#ffcc00' : '#000000';
+            
+            // 绘制车身（迈巴赫）
+            ctx.fillStyle = gameState.invincible ? '#ffcc00' : '#000000'; // 无敌时车身变为金色
             ctx.fillRect(gameState.carX - config.carWidth/2, carY, config.carWidth, config.carHeight);
-            // 车窗
-            ctx.fillStyle = '#87CEEB';
+            
+            // 绘制车窗
+            ctx.fillStyle = '#87CEEB'; // 天蓝色车窗
             ctx.fillRect(gameState.carX - config.carWidth/2 + 5, carY + 5, config.carWidth - 10, 30);
-            // 车顶
+            
+            // 绘制车顶
             ctx.fillStyle = '#333333';
             ctx.fillRect(gameState.carX - config.carWidth/2 + 10, carY - 5, config.carWidth - 20, 5);
-            // 轮子
+            
+            // 绘制轮子
             ctx.fillStyle = '#333333';
             ctx.fillRect(gameState.carX - config.carWidth/2 - 5, carY + 15, 5, 20);
             ctx.fillRect(gameState.carX + config.carWidth/2, carY + 15, 5, 20);
             ctx.fillRect(gameState.carX - config.carWidth/2 - 5, carY + 55, 5, 20);
             ctx.fillRect(gameState.carX + config.carWidth/2, carY + 55, 5, 20);
+            
+            // 绘制人物
             // 驾驶位（白衣女子）
-            ctx.fillStyle = '#FFFFFF';
+            ctx.fillStyle = '#FFFFFF'; // 白色连衣裙
             ctx.beginPath();
             ctx.arc(gameState.carX - 10, carY + 25, 8, 0, Math.PI * 2);
             ctx.fill();
+            
             // 眼罩
             ctx.fillStyle = '#000000';
             ctx.fillRect(gameState.carX - 15, carY + 20, 10, 3);
+            
             // 副驾驶（神秘男子）
-            ctx.fillStyle = '#D2B48C';
+            ctx.fillStyle = '#D2B48C'; // 小麦色皮肤
             ctx.beginPath();
             ctx.arc(gameState.carX + 10, carY + 25, 8, 0, Math.PI * 2);
             ctx.fill();
+            
             // 白色头发
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(gameState.carX + 5, carY + 15, 10, 5);
-            // 无敌光环
+            
+            // 无敌状态下添加金色光环
             if (gameState.invincible) {
                 ctx.strokeStyle = '#ffcc00';
                 ctx.lineWidth = 3;
                 ctx.beginPath();
                 ctx.arc(gameState.carX, carY + config.carHeight/2, config.carWidth + 10, 0, Math.PI * 2);
                 ctx.stroke();
+                
                 ctx.beginPath();
                 ctx.arc(gameState.carX, carY + config.carHeight/2, config.carWidth + 15, 0, Math.PI * 2);
                 ctx.stroke();
             }
         }
-
+        
         // 绘制障碍物
         function drawObstacle(obstacle) {
             switch(obstacle.type) {
-                case 'rock': ctx.fillStyle = '#808080'; break;
-                case 'cactus': ctx.fillStyle = '#008000'; break;
-                case 'quicksand': ctx.fillStyle = '#F0E68C'; break;
-                case 'rail': ctx.fillStyle = '#A0522D'; break;
+                case 'rock':
+                    ctx.fillStyle = '#808080';
+                    break;
+                case 'cactus':
+                    ctx.fillStyle = '#008000';
+                    break;
+                case 'quicksand':
+                    ctx.fillStyle = '#F0E68C';
+                    break;
+                case 'rail':
+                    ctx.fillStyle = '#A0522D';
+                    break;
                 case 'star':
+                    // 星星绘制为闪烁效果
                     const blink = Math.sin(Date.now() / 200) > 0;
                     ctx.fillStyle = blink ? '#FFFF00' : '#FFD700';
                     break;
             }
+            
             if (obstacle.type === 'star') {
+                // 绘制五角星
                 ctx.beginPath();
                 const centerX = obstacle.x + obstacle.width/2;
                 const centerY = obstacle.y + obstacle.height/2;
                 const spikes = 5;
                 const outerRadius = obstacle.width/2;
                 const innerRadius = outerRadius/2;
+                
                 for (let i = 0; i < spikes * 2; i++) {
                     const radius = i % 2 === 0 ? outerRadius : innerRadius;
                     const angle = (i * Math.PI / spikes) - Math.PI/2;
                     const x = centerX + Math.cos(angle) * radius;
                     const y = centerY + Math.sin(angle) * radius;
-                    if (i === 0) { ctx.moveTo(x, y); } else { ctx.lineTo(x, y); }
+                    
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
                 }
+                
                 ctx.closePath();
                 ctx.fill();
             } else {
                 ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                
+                // 为仙人掌添加刺
                 if (obstacle.type === 'cactus') {
                     ctx.strokeStyle = '#006400';
                     ctx.lineWidth = 2;
+                    
                     for (let i = 0; i < 5; i++) {
                         const offset = i * 8;
                         ctx.beginPath();
                         ctx.moveTo(obstacle.x + obstacle.width/2, obstacle.y + offset + 5);
                         ctx.lineTo(obstacle.x + obstacle.width/2 + 10, obstacle.y + offset);
                         ctx.stroke();
+                        
                         ctx.beginPath();
                         ctx.moveTo(obstacle.x + obstacle.width/2, obstacle.y + offset + 5);
                         ctx.lineTo(obstacle.x + obstacle.width/2 - 10, obstacle.y + offset);
@@ -338,22 +502,31 @@
                 }
             }
         }
-
+        
         // 绘制道路
         function drawRoad() {
             const roadX = (canvas.width - config.roadWidth) / 2;
+            
+            // 道路
             ctx.fillStyle = '#8B4513';
             ctx.fillRect(roadX, 0, config.roadWidth, canvas.height);
+            
+            // 道路标记
             ctx.fillStyle = '#FFD700';
             ctx.strokeStyle = '#FFD700';
             ctx.lineWidth = 2;
+            
             for (let y = 0; y < canvas.height; y += 40) {
                 const offset = (Date.now() / 30) % 40;
                 ctx.fillRect(roadX + config.roadWidth/2 - 2, y - offset, 4, 20);
             }
+            
+            // 沙漠背景
             ctx.fillStyle = '#D2B48C';
             ctx.fillRect(0, 0, roadX, canvas.height);
             ctx.fillRect(roadX + config.roadWidth, 0, roadX, canvas.height);
+            
+            // 沙漠纹理
             ctx.fillStyle = '#B8860B';
             for (let i = 0; i < 50; i++) {
                 const x = Math.random() * roadX;
@@ -361,4 +534,193 @@
                 ctx.beginPath();
                 ctx.arc(x, y, 2, 0, Math.PI * 2);
                 ctx.fill();
-                const x2
+                
+                const x2 = roadX + config.roadWidth + Math.random() * roadX;
+                const y2 = Math.random() * canvas.height;
+                ctx.beginPath();
+                ctx.arc(x2, y2, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        // 碰撞检测
+        function checkCollision(obstacle) {
+            const carY = canvas.height - 120;
+            const carLeft = gameState.carX - config.carWidth/2;
+            const carRight = gameState.carX + config.carWidth/2;
+            const carTop = carY;
+            const carBottom = carY + config.carHeight;
+            
+            const obstacleLeft = obstacle.x;
+            const obstacleRight = obstacle.x + obstacle.width;
+            const obstacleTop = obstacle.y;
+            const obstacleBottom = obstacle.y + obstacle.height;
+            
+            return carRight > obstacleLeft && 
+                   carLeft < obstacleRight && 
+                   carBottom > obstacleTop && 
+                   carTop < obstacleBottom;
+        }
+        
+        // 激活无敌状态
+        function activateInvincibility() {
+            gameState.invincible = true;
+            gameState.invincibleEndTime = Date.now() + config.invincibleDuration;
+            invincibleTimerElement.classList.remove('hidden');
+        }
+        
+        // 游戏主循环
+        function gameLoop(timestamp) {
+            if (!gameState.running) return;
+            
+            resizeCanvas();
+            
+            // 清除画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 更新游戏时间
+            if (!gameState.lastTime) gameState.lastTime = timestamp;
+            const deltaTime = timestamp - gameState.lastTime;
+            gameState.lastTime = timestamp;
+            
+            gameState.time += deltaTime / 1000;
+            
+            // 更新计时器
+            timerElement.textContent = `时间: ${Math.floor(gameState.time)}s`;
+            
+            // 每5秒增加速度
+            if (timestamp - gameState.lastSpeedIncrease > config.speedIncreaseInterval) {
+                gameState.lastSpeedIncrease = timestamp;
+                if (gameState.speed < config.maxSpeed) {
+                    gameState.speed += config.speedIncreaseFactor;
+                    speedElement.textContent = `速度: ${Math.floor(gameState.speed * 100 / config.baseSpeed)}%`;
+                }
+            }
+            
+            // 处理无敌状态
+            if (gameState.invincible) {
+                const remaining = Math.max(0, gameState.invincibleEndTime - Date.now());
+                invincibleTimerElement.textContent = `无敌: ${(remaining / 1000).toFixed(1)}s`;
+                
+                if (remaining <= 0) {
+                    gameState.invincible = false;
+                    invincibleTimerElement.classList.add('hidden');
+                }
+            }
+            
+            // 生成新障碍物
+            if (timestamp - gameState.lastObstacleTime > 1500 - (gameState.speed * 100)) {
+                gameState.lastObstacleTime = timestamp;
+                
+                // 30秒后开始出现多个障碍物
+                const obstacleCount = gameState.time > config.multipleObstacleTime/1000 ? 
+                    Math.floor(1 + Math.random() * 2) : 1;
+                
+                for (let i = 0; i < obstacleCount; i++) {
+                    gameState.obstacles.push(createObstacle());
+                }
+                
+                // 随机生成星星（概率较低）
+                if (Math.random() < config.starSpawnChance) {
+                    gameState.obstacles.push(createStar());
+                    gameState.starSpawned++;
+                }
+            }
+            
+            // 绘制道路
+            drawRoad();
+            
+            // 更新和绘制障碍物
+            for (let i = gameState.obstacles.length - 1; i >= 0; i--) {
+                const obstacle = gameState.obstacles[i];
+                
+                // 移动障碍物
+                obstacle.y += gameState.speed;
+                
+                // 绘制障碍物
+                drawObstacle(obstacle);
+                
+                // 检测碰撞
+                if (checkCollision(obstacle)) {
+                    if (obstacle.type === 'star') {
+                        // 收集星星，激活无敌状态
+                        gameState.obstacles.splice(i, 1);
+                        activateInvincibility();
+                    } else if (!gameState.invincible) {
+                        // 撞上障碍物且不在无敌状态
+                        gameOver();
+                        return;
+                    }
+                }
+                
+                // 移除屏幕外的障碍物
+                if (obstacle.y > canvas.height) {
+                    gameState.obstacles.splice(i, 1);
+                }
+            }
+            
+            // 绘制车辆
+            drawCar();
+            
+            // 继续游戏循环
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // 事件监听
+        startBtn.addEventListener('click', initGame);
+        restartBtn.addEventListener('click', initGame);
+        
+        // 键盘控制
+        document.addEventListener('keydown', (e) => {
+            if (!gameState.running) return;
+            
+            if (e.key === 'ArrowLeft' || e.key === 'a') {
+                gameState.carX = Math.max(gameState.carX - 10, (canvas.width - config.roadWidth) / 2 + config.carWidth/2);
+            }
+            if (e.key === 'ArrowRight' || e.key === 'd') {
+                gameState.carX = Math.min(gameState.carX + 10, (canvas.width + config.roadWidth) / 2 - config.carWidth/2);
+            }
+        });
+        
+        // 触摸控制
+        leftBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            gameState.carX = Math.max(gameState.carX - 10, (canvas.width - config.roadWidth) / 2 + config.carWidth/2);
+        });
+        
+        rightBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            gameState.carX = Math.min(gameState.carX + 10, (canvas.width + config.roadWidth) / 2 - config.carWidth/2);
+        });
+        
+        // 移动端触摸控制
+        let touchStartX = 0;
+        
+        canvas.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            e.preventDefault();
+        });
+        
+        canvas.addEventListener('touchmove', (e) => {
+            if (!gameState.running) return;
+            
+            const touchX = e.touches[0].clientX;
+            const diff = touchX - touchStartX;
+            
+            if (diff > 10) {
+                gameState.carX = Math.min(gameState.carX + 10, (canvas.width + config.roadWidth) / 2 - config.carWidth/2);
+                touchStartX = touchX;
+            } else if (diff < -10) {
+                gameState.carX = Math.max(gameState.carX - 10, (canvas.width - config.roadWidth) / 2 + config.carWidth/2);
+                touchStartX = touchX;
+            }
+            
+            e.preventDefault();
+        });
+        
+        // 初始调整Canvas大小
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+    </script>
+</body>
+</html>
